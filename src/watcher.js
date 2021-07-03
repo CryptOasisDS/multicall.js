@@ -39,9 +39,10 @@ function prepareConfig(config) {
   return config;
 }
 
-export default function createWatcher(model, config) {
+export default function createWatcher(model, requireSuccess, config) {
   const state = {
     model: [...model],
+    requireSuccess,
     store: {},
     storeTransformed: {},
     keyToArgMap: {},
@@ -87,12 +88,12 @@ export default function createWatcher(model, config) {
         }
       };
       state.ws.onclose = err => {
-        log('WebSocket closed: %s', JSON.stringify(err));
+        log('WebSocket closed: %s', err.message);
         log(`Reconnecting in ${state.config.wsReconnectTimeout / 1000} seconds.`);
         reconnectWebSocket(state.config.wsReconnectTimeout);
       };
       state.ws.onerror = err => {
-        log('WebSocket error: %s', JSON.stringify(err));
+        log('WebSocket error: %s', err.message);
         log(`Reconnecting in ${state.config.wsReconnectTimeout / 1000} seconds.`);
         reconnectWebSocket(state.config.wsReconnectTimeout);
       };
@@ -112,6 +113,7 @@ export default function createWatcher(model, config) {
 
   state.initialFetchPromise = new Promise(resolve => {
     state.initialFetchResolver = resolve;
+    resolve()
   });
 
   function subscribe(listener, id, batch = false) {
@@ -158,7 +160,7 @@ export default function createWatcher(model, config) {
             transformed: { ...dataTransformed }
           },
           keyToArgMap
-        } = await aggregate(this.state.model, {
+        } = await aggregate(this.state.model, this.state.requireSuccess,{
           ...this.state.config,
           ws: this.state.ws,
           id: this.state.latestPromiseId

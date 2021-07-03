@@ -18,7 +18,7 @@ declare module '@makerdao/multicall' {
 
   export interface ICall {
     target: string;
-    call: string[];
+    call: (string | number | boolean)[];
     returns: (string | IPostProcess)[][];
   }
 
@@ -32,6 +32,7 @@ declare module '@makerdao/multicall' {
 
   export interface IResult {
     blockNumber: BigNumber;
+    blockHash: string;
     original: IKeysValues;
     transformed: IKeysValues;
     keyToArgMap: IArgumentsMapping;
@@ -83,7 +84,7 @@ declare module '@makerdao/multicall' {
   }
 
   export interface IWatcher {
-    initialFetch: Promise;
+    initialFetch: Promise<void>;
 
     schemas: Partial<ICall>[];
 
@@ -110,7 +111,7 @@ declare module '@makerdao/multicall' {
     awaitInitialFetch(): Promise<undefined>;
   }
 
-  export function aggregate(calls: Partial<ICall>[], config: Partial<IConfig>): Promise<IResponse>;
+  export function aggregate(calls: Partial<ICall>[], requireSuccess: boolean, config: Partial<IConfig>): Promise<IResponse>;
 
-  export function createWatcher(calls: Partial<ICall>[], config: Partial<IConfig>): IWatcher;
+  export function createWatcher(calls: Partial<ICall>[], requireSuccess: boolean, config: Partial<IConfig>): IWatcher;
 }

@@ -10,13 +10,13 @@ describe('watcher', () => {
   beforeEach(() => fetch.resetMocks());
 
   test('schemas set correctly', async () => {
-    const watcher = createWatcher([calls[0], calls[1], calls[2]], config);
+    const watcher = createWatcher([calls[0], calls[1], calls[2]], false, config);
     expect(watcher.schemas).toEqual([calls[0], calls[1], calls[2]]);
   });
 
   test('await initial fetch', async () => {
     const results = {};
-    const watcher = createWatcher([calls[0], calls[1]], config);
+    const watcher = createWatcher([calls[0], calls[1]], false, config);
     watcher.onNewBlock(number => results['BLOCK_NUMBER'] = number);
 
     fetch.mockResponse(async () => ({
@@ -32,7 +32,7 @@ describe('watcher', () => {
   test('subscription updates (separate and batched)', async () => {
     const results = {};
     const batchedResults = {};
-    const watcher = createWatcher([calls[0], calls[1]], config);
+    const watcher = createWatcher([calls[0], calls[1]], false, config);
     watcher.subscribe(update => results[update.type] = update.value);
     watcher.batch().subscribe(updates => updates.forEach(update => batchedResults[update.type] = update.value));
     watcher.onNewBlock(number => results['BLOCK_NUMBER'] = number);
@@ -50,7 +50,7 @@ describe('watcher', () => {
 
   test('subscription updates after schema changed', async () => {
     const results = {};
-    const watcher = createWatcher([calls[0], calls[1]], config);
+    const watcher = createWatcher([calls[0], calls[1]], false, config);
     watcher.subscribe(update => results[update.type] = update.value);
     watcher.onNewBlock(number => results['BLOCK_NUMBER'] = number);
     fetch.mockResponse(async () => ({
@@ -75,7 +75,7 @@ describe('watcher', () => {
 
   test('subscription updates after watcher recreated', async () => {
     const results = {};
-    const watcher = createWatcher([calls[0], calls[1]], config);
+    const watcher = createWatcher([calls[0], calls[1]], false, config);
     watcher.subscribe(update => results[update.type] = update.value);
     watcher.onNewBlock(number => results['BLOCK_NUMBER'] = number);
     fetch.mockResponse(async () => ({
@@ -90,7 +90,7 @@ describe('watcher', () => {
     fetch.mockResponse(async () => ({
       body: JSON.stringify({ jsonrpc: '2.0', id: 2, result: mockedResults[1] })
     }));
-    await watcher.recreate([calls[0], calls[1], calls[2]], config);
+    await watcher.recreate([calls[0], calls[1], calls[2]], false, config);
 
     expect(results['BALANCE_OF_ETH_WHALE']).toEqual('3333.44445555');
     expect(results['BALANCE_OF_MKR_WHALE']).toEqual('4444.55556666');
@@ -99,7 +99,7 @@ describe('watcher', () => {
   });
 
   test('onError listener', async (done) => {
-    const watcher = createWatcher([], config);
+    const watcher = createWatcher([], false, config);
     watcher.onError(() => done());
     fetch.mockResponse(async () => ({
       body: JSON.stringify({ jsonrpc: '2.0', id: 1, result: mockedResults[0] })
@@ -108,7 +108,7 @@ describe('watcher', () => {
   });
 
   test('onPoll listener', async (done) => {
-    const watcher = createWatcher([calls[0], calls[1]], config);
+    const watcher = createWatcher([calls[0], calls[1]], false, config);
     watcher.onPoll(({ id, latestBlockNumber }) => {
       if (id === 1) expect(latestBlockNumber).toEqual(null);
       else if (id === 2) {
@@ -130,7 +130,7 @@ describe('watcher', () => {
 
   test('null result from transform that changes to BigNumber', async () => {
     const results = {};
-    const watcher = createWatcher([calls[0], calls[3]], config);
+    const watcher = createWatcher([calls[0], calls[3]], false, config);
     watcher.subscribe(update => results[update.type] = update.value);
     watcher.onError(err => results['ERROR'] = err);
     fetch.mockResponse(async () => ({

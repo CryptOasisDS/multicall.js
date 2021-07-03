@@ -1,14 +1,18 @@
 import { id as keccak256 } from 'ethers/utils/hash';
 import invariant from 'invariant';
-import { strip0x, ethCall, encodeParameters, decodeParameters } from './helpers.js';
+import { strip0x, ethCall, encodeParameters, decodeParameters, classify } from './helpers.js';
 import memoize from 'lodash/memoize';
+import BigNumber from 'bignumber.js';
 
 const INSIDE_EVERY_PARENTHESES = /\(.*?\)/g;
 const FIRST_CLOSING_PARENTHESES = /^[^)]*\)/;
 
-export function _makeMulticallData(calls) {
+export function _makeMulticallData(params) {
   const values = [
-    calls.map(({ target, method, args, returnTypes }) => [
+    [
+      params.requireSuccess
+    ],
+    params.calls.map(({ target, method, args, returnTypes }) => [
       target,
       keccak256(method).substr(0, 10) +
         (args && args.length > 0
@@ -16,8 +20,13 @@ export function _makeMulticallData(calls) {
           : '')
     ])
   ];
+
   const calldata = encodeParameters(
     [
+      {
+        name: 'requireSuccess',
+        type: 'bool'
+      },
       {
         components: [{ type: 'address' }, { type: 'bytes' }],
         name: 'data',
@@ -31,7 +40,7 @@ export function _makeMulticallData(calls) {
 
 const makeMulticallData = memoize(_makeMulticallData, (...args) => JSON.stringify(args));
 
-export default async function aggregate(calls, config) {
+export default async function aggregate(calls, requireSuccess, config) {
   calls = Array.isArray(calls) ? calls : [calls];
 
   const keyToArgMap = calls.reduce((acc, { call, returns }) => {
@@ -70,7 +79,11 @@ export default async function aggregate(calls, config) {
     };
   });
 
-  const callDataBytes = makeMulticallData(calls, false);
+  const callDataBytes = makeMulticallData({
+    requireSuccess,
+    calls
+  }, false);
+
   const outerResults = await ethCall(callDataBytes, config);
   const returnTypeArray = calls
     .map(({ returnTypes }) => returnTypes)
@@ -84,12 +97,40 @@ export default async function aggregate(calls, config) {
     'Missing data needed to parse results'
   );
 
-  const outerResultsDecoded = decodeParameters(['uint256', 'bytes[]'], outerResults);
+  const outerResultsDecoded = decodeParameters([
+    'uint256', 'bytes32',
+    {
+      components: [
+        { type: 'bool' },
+        { type: 'bytes' }
+      ],
+      name: 'data',
+      type: 'tuple[]'
+    }
+  ], outerResults);
   const blockNumber = outerResultsDecoded.shift();
+  const blockHash = outerResultsDecoded.shift();
+
   const parsedVals = outerResultsDecoded.reduce((acc, r) => {
     r.forEach((results, idx) => {
       const types = calls[idx].returnTypes;
-      const resultsDecoded = decodeParameters(types, results);
+      let resultsDecoded;
+      // the first value is boolean, which indicates whether a request was successful
+      const requestSuccess = results[0];
+      if (!requestSuccess) {
+        resultsDecoded = types.map((type) => {
+          switch (classify(type)) {
+            case 'bool': return false;
+            case 'string': return '';
+            case 'address': return '';
+            case 'int': return 0;
+            case 'array': return [];
+            default: return null;
+          }
+        })
+      } else {
+        resultsDecoded = decodeParameters(types, results[1]);
+      }
       acc.push(
         ...resultsDecoded.map((r, idx) => {
           if (types[idx] === 'bool') return r.toString() === 'true';
@@ -100,7 +141,7 @@ export default async function aggregate(calls, config) {
     return acc;
   }, []);
 
-  const retObj = { blockNumber, original: {}, transformed: {} };
+  const retObj = { blockNumber, blockHash, original: {}, transformed: {} };
 
   for (let i = 0; i < parsedVals.length; i++) {
     const [name, transform] = returnDataMeta[i];

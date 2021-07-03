@@ -1,24 +1,26 @@
 {
   "name": "@makerdao/multicall",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "A blockchain state management library for dapps.",
   "contributors": [
     "Michael Elliot <mike@makerdao.com>",
     "Joshua Levine <joshua@makerdao.com>",
-    "Lawrence Wang <lawrence@makerdao.com>"
+    "Lawrence Wang <lawrence@makerdao.com>",
+    "GONG <supersonic@wonderwall.finance>"
   ],
   "license": "MIT",
   "keywords": [
     "multicall",
-    "makerdao"
+    "makerdao",
+    "oasis"
   ],
-  "homepage": "https://github.com/makerdao/multicall.js#readme",
+  "homepage": "https://github.com/CryptOasisDS/multicall.js#readme",
   "bugs": {
-    "url": "https://github.com/makerdao/multicall.js/issues"
+    "url": "https://github.com/CryptOasisDS/multicall.js/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/makerdao/multicall.js.git"
+    "url": "https://github.com/CryptOasisDS/multicall.js.git"
   },
   "main": "dist/multicall.cjs.js",
   "types": "types/multicall.d.ts",
@@ -57,7 +59,7 @@
     "@babel/plugin-transform-runtime": "^7.7.4",
     "@babel/preset-env": "^7.6.0",
     "babel-jest": "^24.9.0",
-    "bignumber.js": "^9.0.0",
+    "bignumber.js": "^9.0.1",
     "cross-env": "^5.2.1",
     "jest": "^24.9.0",
     "jest-fetch-mock": "^2.1.2",

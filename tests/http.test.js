@@ -11,7 +11,7 @@ describe('http', () => {
 
   test('requests using http endpoint', async () => {
     const results = {};
-    const watcher = createWatcher([calls[0], calls[1]], config);
+    const watcher = createWatcher([calls[0], calls[1]], false, config);
     watcher.subscribe(update => results[update.type] = update.value);
     watcher.onNewBlock(number => results['BLOCK_NUMBER'] = number);
 

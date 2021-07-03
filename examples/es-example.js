@@ -1,18 +1,16 @@
 import { createWatcher } from '../src';
 
-const MKR_TOKEN = '0xaaf64bfcc32d0f15873a02163e7e500671a4ffcd';
-const MKR_WHALE = '0xdb33dfd3d61308c33c63209845dad3e6bfb2c674';
-const MKR_FISH = '0x2dfcedcb401557354d0cf174876ab17bfd6f4efd';
-const PRICE_FEED_ETH = '0xa5aA4e07F5255E14F02B385b1f04b35cC50bdb66';
+const OASIS_TOKEN = '0xd9c99510a5e3145359d91fe9caf92dd5d68b603a';
+const OASIS_DECIMALS = 9;
+const FISH = '0x86dd9a218780c64f934799a530371795d46f1a8a';
+const DEPLOYER = '0x000000000D0D02A775C6E45C2b88572C07CF665B'
 
 // Preset can be 'mainnet', 'kovan', 'rinkeby', 'goerli' or 'xdai'
 // const config = { preset: 'kovan' };
 
 // Alternatively the rpcUrl and multicallAddress can be specified manually
 const config = {
-  rpcUrl: 'wss://kovan.infura.io/ws/v3/58073b4a32df4105906c702f167b91d2',
-  multicallAddress: '0x2cc8688c5f75e365aaeeb4ea8d6a480405a48d2a',
-  interval: 1000
+  preset: 'bsc'
 };
 
 (async () => {
@@ -21,24 +19,17 @@ const config = {
       {
         call: [
           'getEthBalance(address)(uint256)',
-          '0x72776bb917751225d24c07d0663b3780b2ada67c'
+          DEPLOYER
         ],
         returns: [['ETH_BALANCE', val => val / 10 ** 18]]
       },
       {
-        target: MKR_TOKEN,
-        call: ['balanceOf(address)(uint256)', MKR_WHALE],
-        returns: [['BALANCE_OF_MKR_WHALE', val => val / 10 ** 18]]
-      },
-      {
-        target: PRICE_FEED_ETH,
-        call: ['peek()(uint256,bool)'],
-        returns: [
-          ['PRICE_FEED_ETH_PRICE', val => val / 10 ** 18],
-          ['PRICE_FEED_ETH_SET']
-        ]
+        target: OASIS_TOKEN,
+        call: ['balanceOf(address)(uint256)', DEPLOYER],
+        returns: [['BALANCE_OF_DEPLOYER', val => val / 10 ** OASIS_DECIMALS]]
       }
     ],
+    false,
     config
   );
 
@@ -67,9 +58,9 @@ const config = {
       const fetchWaiter = watcher.tap(calls => [
         ...calls,
         {
-          target: MKR_TOKEN,
-          call: ['balanceOf(address)(uint256)', MKR_FISH],
-          returns: [['BALANCE_OF_MKR_FISH', val => val / 10 ** 18]]
+          target: OASIS_TOKEN,
+          call: ['balanceOf(address)(uint256)', FISH],
+          returns: [['BALANCE_OF_FISH', val => val / 10 ** OASIS_DECIMALS]]
         }
       ]);
       fetchWaiter.then(() => {
@@ -83,9 +74,9 @@ const config = {
       const fetchWaiter = watcher.recreate(
         [
           {
-            target: MKR_TOKEN,
-            call: ['balanceOf(address)(uint256)', MKR_WHALE],
-            returns: [['BALANCE_OF_MKR_WHALE', val => val / 10 ** 18]]
+            target: OASIS_TOKEN,
+            call: ['balanceOf(address)(uint256)', DEPLOYER],
+            returns: [['BALANCE_OF_DEPLOYER', val => val / 10 ** OASIS_DECIMALS]]
           }
         ],
         config

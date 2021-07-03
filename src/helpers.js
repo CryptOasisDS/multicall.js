@@ -3,8 +3,8 @@ import { defaultAbiCoder } from 'ethers/utils/abi-coder';
 import debug from 'debug';
 const log = debug('multicall');
 
-// Function signature for: aggregate((address,bytes)[])
-export const AGGREGATE_SELECTOR = '0x252dba42';
+// Function signature for: tryBlockAndAggregate(bool,(address,bytes)[])
+export const AGGREGATE_SELECTOR = '0x399542e9';
 
 export function strip0x(str) {
   return str.replace(/^0x/, '');
@@ -57,6 +57,10 @@ export function isEmpty(obj) {
   return !obj || Object.keys(obj).length === 0;
 }
 
+const nullOrUndefined = (variable) => {
+  return typeof variable === 'undefined' || variable === null
+}
+
 export async function ethCall(rawData, { id, web3, rpcUrl, block, multicallAddress, ws, wsResponseTimeout }) {
   const abiEncodedData = AGGREGATE_SELECTOR + strip0x(rawData);
   if (ws) {
@@ -76,12 +80,19 @@ export async function ethCall(rawData, { id, web3, rpcUrl, block, multicallAddre
       }));
       function onMessage(data) {
         if (typeof data !== 'string') data = data.data;
-        const json = JSON.parse(data);
+        try {
+          var json = JSON.parse(data);
+        } catch (e) {
+          log('Unexpected WebSocket response %s', data);
+          return;
+        }
         if (!json.id || json.id !== id) return;
         log('Got WebSocket response id #%d', json.id);
         clearTimeout(timeoutHandle);
         ws.onmessage = null;
-        resolve(json.result);
+        if (json.result) return resolve(json.result);
+        if (json.error) return reject(new Error(json.error.message));
+        reject(new Error(`WebSocket response with empty result`));
       }
       const timeoutHandle = setTimeout(() => {
         if (ws.onmessage !== onMessage) return;
@@ -120,9 +131,26 @@ export async function ethCall(rawData, { id, web3, rpcUrl, block, multicallAddre
       })
     });
     const content = await rawResponse.json();
-    if (!content || !content.result) {
+
+    if (nullOrUndefined(content) || nullOrUndefined(content.result)) {
       throw new Error('Multicall received an empty response. Check your call configuration for errors.');
     }
     return content.result;
   }
+}
+
+export function classify (type) {
+  if (type.contains('int')) {
+    return 'int'
+  }
+
+  if (type.contains('fixed')) {
+    return 'int'
+  }
+
+  if (type.contains('byte')) {
+    return 'array'
+  }
+
+  return type
 }
