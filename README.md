@@ -46,6 +46,7 @@ const watcher = createWatcher(
       returns: [['BALANCE_OF_DEPLOYER', val => val / 10 ** DECIMALS]]
     }
   ],
+  false,
   config
 );
 
@@ -107,6 +108,7 @@ watcher.recreate(
       returns: [['BALANCE_OF_DEPLOYER', val => val / 10 ** DECIMALS]]
     }
   ],
+  false,
   config
 );
 ```
@@ -149,6 +151,7 @@ const watcher = createWatcher(
       returns: [['CURRENT_BLOCK_COINBASE']]
     }
   ],
+  false,
   { preset: 'kovan' }
 );
 ```
