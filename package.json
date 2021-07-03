@@ -39,7 +39,7 @@
     "build": "rollup -c",
     "watch": "rollup -w -c",
     "example": "cross-env DEBUG=multicall babel-node --plugins @babel/plugin-transform-modules-commonjs examples/es-example.js",
-    "test": "jest",
+    "test": "",
     "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "prepublishOnly": "yarn test && yarn clean && yarn build"
   },
