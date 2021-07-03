@@ -1,5 +1,5 @@
 {
-  "name": "@makerdao/multicall",
+  "name": "@wonderwall/multicall",
   "version": "0.12.1",
   "description": "A blockchain state management library for dapps.",
   "contributors": [
@@ -12,7 +12,8 @@
   "keywords": [
     "multicall",
     "makerdao",
-    "oasis"
+    "oasis",
+    "wonderwall.finance"
   ],
   "homepage": "https://github.com/CryptOasisDS/multicall.js#readme",
   "bugs": {
@@ -20,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/CryptOasisDS/multicall.js.git"
+    "url": "git+https://github.com/CryptOasisDS/multicall.js.git"
   },
   "main": "dist/multicall.cjs.js",
   "types": "types/multicall.d.ts",
@@ -29,6 +30,7 @@
   "files": [
     "dist",
     "src",
+    "types/multicall.d.ts",
     "LICENSE",
     "README.md"
   ],
@@ -75,5 +77,10 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^5.1.1"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "author": "rodion"
 }

@@ -1,6 +1,8 @@
 # Multicall.js <img width="100" align="right" alt="Multicall" src="https://user-images.githubusercontent.com/304108/55666937-320cb180-5888-11e9-907b-48ba66150523.png" />
 
-[![npm version](https://img.shields.io/npm/v/@makerdao/multicall.svg?style=flat-square)](https://www.npmjs.com/package/@makerdao/multicall)
+[![npm version](https://img.shields.io/npm/v/@wonderwall/multicall.svg?style=flat-square)](https://www.npmjs.com/package/@wonderwall/multicall)
+
+**This version was created by [Oasis team](https://wonderwall.finance). It supports Multicall v2 (with failed calls support), typescript and Binance Smart Chain.**
 
 **Multicall.js** is a lightweight JavaScript library for interacting with the [multicall](https://github.com/makerdao/multicall) smart contract.
 
@@ -18,29 +20,30 @@ Multicall allows multiple smart contract constant function calls to be grouped i
 ## Installation
 
 ```bash
-yarn add @makerdao/multicall
+yarn add @wonderwall/multicall
 ```
 
 ## Usage
 
 ```javascript
-import { createWatcher } from '@makerdao/multicall';
+import { createWatcher } from '@wonderwall/multicall';
 
 // Contract addresses used in this example
-const MKR_TOKEN = '0xaaf64bfcc32d0f15873a02163e7e500671a4ffcd';
-const MKR_WHALE = '0xdb33dfd3d61308c33c63209845dad3e6bfb2c674';
-const MKR_FISH = '0x2dfcedcb401557354d0cf174876ab17bfd6f4efd';
+const TOKEN = '0xd9c99510a5e3145359d91fe9caf92dd5d68b603a';
+const DECIMALS = 9;
+const FISH = '0x86dd9a218780c64f934799a530371795d46f1a8a';
+const DEPLOYER = '0x000000000D0D02A775C6E45C2b88572C07CF665B'
 
 // Preset can be 'mainnet', 'kovan', 'rinkeby', 'goerli' or 'xdai'
-const config = { preset: 'kovan' };
+const config = { preset: 'bsc' };
 
 // Create watcher
 const watcher = createWatcher(
   [
     {
-      target: MKR_TOKEN,
-      call: ['balanceOf(address)(uint256)', MKR_WHALE],
-      returns: [['BALANCE_OF_MKR_WHALE', val => val / 10 ** 18]]
+      target: TOKEN,
+      call: ['balanceOf(address)(uint256)', DEPLOYER],
+      returns: [['BALANCE_OF_DEPLOYER', val => val / 10 ** DECIMALS]]
     }
   ],
   config
@@ -48,14 +51,14 @@ const watcher = createWatcher(
 
 // Subscribe to state updates
 watcher.subscribe(update => {
-console.log(`Update: ${update.type} = ${update.value}`);
+  console.log(`Update: ${update.type} = ${update.value}`);
 });
 
 // Subscribe to batched state updates
 watcher.batch().subscribe(updates => {
   // Handle batched updates here
   // Updates are returned as { type, value } objects, e.g:
-  // { type: 'BALANCE_OF_MKR_WHALE', value: 70000 }
+  // { type: 'BALANCE_OF_DEPLOYER', value: 70000 }
 });
 
 // Subscribe to new block number updates
@@ -71,7 +74,7 @@ watcher.start();
 // The JSON RPC URL and multicall contract address can also be specified in the config:
 const config = {
   rpcUrl: 'https://kovan.infura.io',
-  multicallAddress: '0xc49ab4d7de648a97592ed3d18720e00356b4a806'
+  multicallAddress: '0x5ba1e12693dc8f9c48aad8770482f4739beed696'
 };
 ```
 
@@ -83,8 +86,8 @@ const fetchWaiter = watcher.tap(calls => [
   // ...plus new calls
   {
     target: MKR_TOKEN,
-    call: ['balanceOf(address)(uint256)', MKR_FISH],
-    returns: [['BALANCE_OF_MKR_FISH', val => val / 10 ** 18]]
+    call: ['balanceOf(address)(uint256)', FISH],
+    returns: [['BALANCE_OF_FISH', val => val / 10 ** DECIMALS]]
   }
 ]);
 // This promise resolves when the first fetch completes
@@ -100,8 +103,8 @@ watcher.recreate(
   [
     {
       target: MKR_TOKEN,
-      call: ['balanceOf(address)(uint256)', MKR_WHALE],
-      returns: [['BALANCE_OF_MKR_WHALE', val => val / 10 ** 18]]
+      call: ['balanceOf(address)(uint256)', DEPLOYER],
+      returns: [['BALANCE_OF_DEPLOYER', val => val / 10 ** DECIMALS]]
     }
   ],
   config
@@ -152,12 +155,12 @@ const watcher = createWatcher(
 
 ## Examples
 
-Check out this [CodePen example](https://codepen.io/michaelelliot/pen/MxEpNX?editors=0010) for a working front-end example.
+Check out those [Examples](https://github.com/CryptOasisDS/multicall.js/tree/master/examples).
 
 To run the example in the project, first clone this repo:
 
 ```bash
-git clone https://github.com/makerdao/multicall.js
+git clone https://github.com/CryptOasisDS/multicall.js
 ```
 
 Then install the dependencies:

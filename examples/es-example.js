@@ -5,7 +5,7 @@ const OASIS_DECIMALS = 9;
 const FISH = '0x86dd9a218780c64f934799a530371795d46f1a8a';
 const DEPLOYER = '0x000000000D0D02A775C6E45C2b88572C07CF665B'
 
-// Preset can be 'mainnet', 'kovan', 'rinkeby', 'goerli' or 'xdai'
+// All the available presets: https://github.com/CryptOasisDS/multicall.js/blob/master/src/addresses.json
 // const config = { preset: 'kovan' };
 
 // Alternatively the rpcUrl and multicallAddress can be specified manually

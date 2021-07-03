@@ -1,6 +1,6 @@
 /// <reference types="node"/>
 
-declare module '@makerdao/multicall' {
+declare module '@wonderwall/multicall' {
   import { BigNumber } from 'bignumber.js';
 
   export interface IConfig {
