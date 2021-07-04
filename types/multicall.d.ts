@@ -4,7 +4,7 @@ declare module '@wonderwall/multicall' {
   import { BigNumber } from 'bignumber.js';
 
   export interface IConfig {
-    preset: 'mainnet' | 'kovan' | 'rinkeby' | 'goerli' | 'xdai' | 'ropsten';
+    preset: 'mainnet' | 'kovan' | 'rinkeby' | 'goerli' | 'xdai' | 'ropsten' | 'bsc';
     rpcUrl: string;
     multicallAddress: string;
     interval: number;
