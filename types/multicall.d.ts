@@ -4,12 +4,18 @@ declare module '@wonderwall/multicall' {
   import { BigNumber } from 'bignumber.js';
 
   export interface IConfig {
-    preset: 'mainnet' | 'kovan' | 'rinkeby' | 'goerli' | 'xdai' | 'ropsten' | 'bsc';
+    interval?: number;
+    staleBlockRetryWait?: number;
+    errorRetryWait?: number;
+  }
+
+  export interface IPresetConfig extends IConfig {
+    preset: 'ethereum' | 'kovan' | 'rinkeby' | 'goerli' | 'xdai' | 'ropsten' | 'bsc';
+  }
+
+  export interface ICustomConfig extends IConfig {
     rpcUrl: string;
     multicallAddress: string;
-    interval: number;
-    staleBlockRetryWait: number;
-    errorRetryWait: number;
   }
 
   export interface IPostProcess {
@@ -79,7 +85,7 @@ declare module '@wonderwall/multicall' {
     handler: any | null;
     wsReconnectHandler: any | null;
     watching: boolean;
-    config: Partial<IConfig>;
+    config: IPresetConfig | ICustomConfig;
     ws: WebSocket | null;
   }
 
@@ -102,7 +108,7 @@ declare module '@wonderwall/multicall' {
 
     onError(callback: (error: Error, state: IState) => void): ISubscription;
 
-    recreate(calls: Partial<ICall>[], config: Partial<IConfig>): Promise<undefined>;
+    recreate(calls: Partial<ICall>[], config: IPresetConfig | ICustomConfig): Promise<undefined>;
 
     start(): Promise<undefined>;
 
@@ -111,7 +117,7 @@ declare module '@wonderwall/multicall' {
     awaitInitialFetch(): Promise<undefined>;
   }
 
-  export function aggregate(calls: Partial<ICall>[], requireSuccess: boolean, config: Partial<IConfig>): Promise<IResponse>;
+  export function aggregate(calls: Partial<ICall>[], requireSuccess: boolean, config: IPresetConfig | ICustomConfig): Promise<IResponse>;
 
-  export function createWatcher(calls: Partial<ICall>[], requireSuccess: boolean, config: Partial<IConfig>): IWatcher;
+  export function createWatcher(calls: Partial<ICall>[], requireSuccess: boolean, config: IPresetConfig | ICustomConfig): IWatcher;
 }

@@ -34,7 +34,7 @@ const DECIMALS = 9;
 const FISH = '0x86dd9a218780c64f934799a530371795d46f1a8a';
 const DEPLOYER = '0x000000000D0D02A775C6E45C2b88572C07CF665B'
 
-// Preset can be 'mainnet', 'kovan', 'rinkeby', 'goerli' or 'xdai'
+// Preset can be 'ethereum', 'kovan', 'rinkeby', 'goerli' or 'xdai'
 const config = { preset: 'bsc' };
 
 // Create watcher
@@ -99,7 +99,7 @@ fetchWaiter.then(() => {
 
 ```javascript
 // Recreate the watcher with new calls and config (allowing the network to be changed)
-const config = { preset: 'mainnet' };
+const config = { preset: 'ethereum' };
 watcher.recreate(
   [
     {

@@ -1,5 +1,5 @@
 {
-  "mainnet": {
+  "ethereum": {
     "multicall": "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
     "rpcUrl": "https://mainnet.infura.io"
   },
