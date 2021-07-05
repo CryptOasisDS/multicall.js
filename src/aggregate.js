@@ -2,7 +2,7 @@ import { id as keccak256 } from 'ethers/utils/hash';
 import invariant from 'invariant';
 import { strip0x, ethCall, encodeParameters, decodeParameters, classify } from './helpers.js';
 import memoize from 'lodash/memoize';
-import BigNumber from 'bignumber.js';
+import addresses from './addresses.json';
 
 const INSIDE_EVERY_PARENTHESES = /\(.*?\)/g;
 const FIRST_CLOSING_PARENTHESES = /^[^)]*\)/;
@@ -42,6 +42,13 @@ const makeMulticallData = memoize(_makeMulticallData, (...args) => JSON.stringif
 
 export default async function aggregate(calls, requireSuccess, config) {
   calls = Array.isArray(calls) ? calls : [calls];
+
+  if (config.preset !== undefined && !Object.prototype.hasOwnProperty.call(config, 'rpcUrl')) {
+    if (addresses[config.preset] !== undefined) {
+      config.multicallAddress = addresses[config.preset].multicall;
+      config.rpcUrl = addresses[config.preset].rpcUrl;
+    } else throw new Error(`Unknown preset ${config.preset}`);
+  }
 
   const keyToArgMap = calls.reduce((acc, { call, returns }) => {
     const [, ...args] = call;
