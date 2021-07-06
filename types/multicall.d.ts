@@ -24,7 +24,7 @@ declare module '@wonderwall/multicall' {
 
   export interface ICall {
     target: string;
-    call: (string | number | boolean)[];
+    call: string | (string | number | boolean)[];
     returns: (string | IPostProcess)[][];
   }
 
